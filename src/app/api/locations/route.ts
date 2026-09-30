@@ -6,9 +6,9 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const entries = readLocations();
-    // Return newest first
-    entries.reverse();
-    return NextResponse.json({ entries, total: entries.length });
+    // Return newest first (immutable copy)
+    const sorted = [...entries].reverse();
+    return NextResponse.json({ entries: sorted, total: sorted.length });
   } catch (error) {
     console.error("[Locations API] Error:", error);
     return NextResponse.json(
