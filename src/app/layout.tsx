@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Watto Printed Women Round Neck Brown T-shirt — ShopView",
+  title: "Watto Printed Women Round Neck Brown T-shirt — Shoppers Choice",
   description:
     "View product details for the Watto Printed Women Round Neck Brown T-shirt. Check price, specs, and continue to the retailer.",
   robots: {
