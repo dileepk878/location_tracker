@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Location Landing Page
 
-## Getting Started
+A Vercel-ready Next.js landing page that requests visitor location via the browser Geolocation API with full transparency and user consent.
 
-First, run the development server:
+## Quick Start
 
 ```bash
+# Install dependencies
+npm install
+
+# Create your environment file
+cp .env.example .env.local
+
+# Run locally
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy to Vercel
 
-## Learn More
+### Option A — Vercel CLI
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm i -g vercel
+vercel
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Option B — Git Integration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Push this repo to GitHub / GitLab / Bitbucket.
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repository.
+3. Add the environment variable below.
+4. Click **Deploy**.
 
-## Deploy on Vercel
+### Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable                    | Required | Default                  | Description                               |
+| --------------------------- | -------- | ------------------------ | ----------------------------------------- |
+| `NEXT_PUBLIC_REDIRECT_URL`  | No       | `https://www.google.com` | Where visitors are sent after completion   |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Set this in the Vercel dashboard under **Settings → Environment Variables**, or in your `.env.local` for local development.
+
+---
+
+## How It Works
+
+1. Visitor sees a clean, transparent landing page with a **Continue** button.
+2. A privacy notice explains that location will be requested.
+3. Clicking **Continue** triggers the browser's Geolocation API permission prompt.
+4. If the visitor **allows**, coordinates are sent to `/api/location` and logged server-side, then the visitor is redirected.
+5. If the visitor **denies**, a friendly message appears with the option to continue without sharing.
+6. The **Skip** button is always available to bypass location entirely.
+
+---
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   └── location/
+│   │       └── route.ts      ← Server-side API endpoint
+│   ├── globals.css            ← Design system & styles
+│   ├── layout.tsx             ← Root layout with metadata
+│   └── page.tsx               ← Landing page (client component)
+.env.example                   ← Environment variable template
+.env.local                     ← Your local environment (git-ignored)
+vercel.json                    ← Vercel config with security headers
+```
+
+---
+
+## Extending the API
+
+The `/api/location` endpoint currently logs to the console. To forward data to a database or webhook, edit [`route.ts`](src/app/api/location/route.ts) — look for the `📍 LOCATION RECEIVED` comment block:
+
+```ts
+// Example: send to a webhook
+await fetch(process.env.WEBHOOK_URL!, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ latitude, longitude, accuracy, timestamp }),
+});
+```
+
+---
+
+## Security
+
+- **Input validation** — coordinates are range-checked (`-90..90`, `-180..180`), types are verified, payload size is limited.
+- **Security headers** — `vercel.json` sets `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy`.
+- **No IP collection** — the API does not read or store IP addresses.
+- **Consent-first** — location is only requested after the user clicks Continue; the browser's native permission prompt is always shown.
+
+---
+
+## License
+
+MIT
